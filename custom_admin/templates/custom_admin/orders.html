@@ -1,0 +1,42 @@
+{% extends 'admin_base.html' %}
+{% block title %}Orders{% endblock %}
+{% block css %}
+    <script>
+        const activeDashboardSidebar = 'orders';
+    </script>
+{% endblock %}
+{% block content %}
+    <h2>Orders</h2>
+    <div class="table-responsive">
+            <table class="table table-striped">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">Order No.</th>
+        <th scope="col">Products</th>
+      <th scope="col">Total amount</th>
+      <th scope="col">Tax</th>
+      <th scope="col">Status</th>
+
+    </tr>
+  </thead>
+  <tbody>
+  {% for order in orders %}
+    <tr>
+      <th scope="row">
+
+          <a href="{% url 'admin_single_order' order.pk %}">{{ order.order_number }}</a>
+      </th>
+      <td>{{ order.total_products }}</td>
+      <td>Ksh. {{ order.order_total }}</td>
+      <td>Ksh. {{ order.tax }}</td>
+    <td>{{ order.status|title }}</td>
+
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+        </div>
+        {% if orders.paginator.num_pages > 1 %}
+            {% include 'paginate.html' with page_obj=orders %}
+        {% endif %}
+{% endblock %}

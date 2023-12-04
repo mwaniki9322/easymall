@@ -1,0 +1,29 @@
+<div class="paginate mt-3">
+    <div class="d-flex justify-content-center align-items-center">
+        {% if page_obj.has_previous %}
+            <a href="?page=1{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.filter %}&filter={{ request.GET.filter }}{% endif %}"
+                class="btn btn-primary  btn-sm">
+                <i class="fa fa-angle-double-left"></i>
+            </a>
+            <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.filter %}&filter={{ request.GET.filter }}{% endif %}"
+                class="ml-2 btn btn-primary  btn-sm">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        {% endif %}
+        <div class="mx-3">
+            <p class="my-0 fs-14">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </p>
+        </div>
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.filter %}&filter={{ request.GET.filter }}{% endif %}"
+                class="mr-2 btn btn-primary  btn-sm">
+                <i class="fa fa-angle-right"></i>
+            </a>
+            <a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.filter %}&filter={{ request.GET.filter }}{% endif %}"
+                class="btn btn-primary  btn-sm">
+                <i class="fa fa-angle-double-right"></i>
+            </a>
+        {% endif %}
+    </div>
+</div>

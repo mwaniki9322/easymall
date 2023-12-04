@@ -1,0 +1,38 @@
+{% extends 'admin_base.html' %}
+{% block title %}Admin{% endblock %}
+{% block css %}
+    <script>
+        const activeDashboardSidebar = 'dashboard';
+    </script>
+{% endblock %}
+{% block content %}
+    <div class="row mt-3">
+        <div class="col-md-4 mb-3">
+            <div class="card" style="text-align:center;">
+                <div class="card-body">
+                    <h5 class="card-title">Total products</h5>
+                    <h4>{{products}}</h4>
+                    <a href="{% url 'admin_products' %}">View products</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card" style="text-align:center;">
+                <div class="card-body">
+                    <h5 class="card-title">Total sales</h5>
+                    <h4>Ksh. {{sales}}</h4>
+                    <a href="{% url 'admin_payments' %}">View payments</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card" style="text-align:center;">
+                <div class="card-body">
+                    <h5 class="card-title">Total orders</h5>
+                    <h4>{{orders}}</h4>
+                    <a href="{% url 'admin_orders' %}">View Orders</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

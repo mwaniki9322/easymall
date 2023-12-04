@@ -1,0 +1,330 @@
+{% extends 'admin_base.html' %}
+{% load static %}
+{% block title %}
+    Add product - Admin
+{% endblock %}
+{% block css %}
+    <link rel="stylesheet" href="{% static 'vendor/cropper/cropper.min.css' %}">
+    <script>
+        const activeDashboardSidebar = 'products';
+    </script>
+{% endblock %}
+{% block content %}
+    <h2 class="text-center">Add product</h2>
+    <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <div class="card">
+                        <div class="card-body">
+                            <form method="post" action="{% url 'admin_add_product' %}" id="product-form">
+                                {% csrf_token %}
+                                <ul class="form-errors text-danger fs-14" data-label="__all__"
+                                    style="display: none">
+
+                                </ul>
+
+                                <div class="form-group">
+                                    <label for="product-name">Name</label>
+                                    <input type="text" class="form-control" id="product-name" maxlength="200"
+                                        name="product_name" required>
+                                    <ul class="form-errors text-danger fs-14 mt-1" data-label="product_name"
+                                            style="display: none"></ul>
+                                </div>
+                                <div class="form-row">
+                                    <div class="col">
+                                        <div class="form-group">
+                                            <label for="product-cat">Category</label>
+                                            <select class="form-control" id="product-cat" required name="category">
+                                                <option value="">-- Select category --</option>
+                                                {% for category in categories %}
+                                                    <option value="{{ category.pk }}">{{ category.category_name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <ul class="form-errors text-danger fs-14 mt-1" data-label="category"
+                                                    style="display: none"></ul>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-group">
+                                            <label for="product-price">Price in KES</label>
+                                            <input type="number" class="form-control" id="product-price" min="1"
+                                                name="price" required>
+                                            <ul class="form-errors text-danger fs-14 mt-1" data-label="price"
+                                                    style="display: none"></ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="col">
+                                        <div class="form-group">
+                                            <label for="product-availability">Availability</label>
+                                            <select class="form-control" id="product-availability" required
+                                                name="is_available">
+                                                <option value="available">Available</option>
+                                                <option value="not_available">Not available</option>
+                                            </select>
+                                            <ul class="form-errors text-danger fs-14 mt-1" data-label="is_available"
+                                                    style="display: none"></ul>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-group">
+                                            <label for="product-stock">Stock</label>
+                                            <input type="number" class="form-control" id="product-stock" min="1"
+                                                name="stock" required>
+                                            <ul class="form-errors text-danger fs-14 mt-1" data-label="stock"
+                                                    style="display: none"></ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="col">
+                                        <div class="form-group">
+                                            <label for="product-location">Location</label>
+                                            <input type="text" class="form-control" id="product-location" maxlength="100"
+                                                name="location">
+                                            <ul class="form-errors text-danger fs-14 mt-1" data-label="location"
+                                                    style="display: none"></ul>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-group">
+                                            <label for="product-datetime">Datetime</label>
+                                            <input type="text" class="form-control" id="product-datetime" maxlength="100"
+                                                name="Datetime">
+                                            <ul class="form-errors text-danger fs-14 mt-1" data-label="Datetime"
+                                                    style="display: none"></ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="product-desc">Description</label>
+                                    <textarea class="form-control" id="product-desc" rows="3" name="description" required maxlength="500"></textarea>
+                                    <ul class="form-errors text-danger fs-14 mt-1" data-label="description"
+                                            style="display: none"></ul>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="fs-14">Variations</label>
+                                    <div data-repeater-list="group-a">
+                                        <div data-repeater-item class="variations-group">
+                                            <div class="form-row mb-2">
+                                                <div class="col-6">
+                                                    <select class="form-control variation-category">
+                                                        <option value="color">Color</option>
+                                                        <option value="size">Size</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-6">
+                                                    <input type="text" class="form-control variation-value" maxlength="100"
+                                                        placeholder="Variation value">
+                                                </div>
+                                            </div>
+                                            <div class="d-flex justify-content-end">
+                                                <span data-repeater-delete class="text-danger"
+                                                    id="remove-variation" style="cursor: pointer">
+                                                    Remove
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <a data-repeater-create style="cursor: pointer" class="btn btn-primary btn-sm text-white" id="add-variation">
+                                        Add variation
+                                    </a>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label>Image</label><br>
+                                    <button class="btn btn-primary btn-sm" id="product-img-btn">
+                                        Select image
+                                    </button>
+                                    <div style="position: absolute; left: -1000px; top: -1000px">
+                                        <input type="hidden" id="product-img-x" name="image_x" required>
+                                        <input type="hidden" id="product-img-y" name="image_y" required>
+                                        <input type="hidden" id="product-img-h" name="image_h" required>
+                                        <input type="hidden" id="product-img-w" name="image_w" required>
+                                        <input type="file" accept="image/*" id="product-img" name="images" required/>
+                                    </div>
+                                    <div id="product-img-cropping-container" style="margin-bottom: 20px; display: none;">
+                                        <img id="product-img-cropper-img" style="height: 250px; max-width: 100%; display: block" src="">
+                                        <div class="d-flex justify-content-center mt-3">
+                                            <button type="button" class="btn btn-dark custom product-img-crop-zoom-in mr-3">
+                                                <i class="fa fa-search-plus"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-dark custom product-img-crop-zoom-out mr-3">
+                                                <i class="fa fa-search-minus"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-danger product-img-crop-destroy">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr>
+                                <button class="btn btn-primary submit-btn" type="submit" data-working="Processing...">
+                                    Submit product
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+{% endblock %}
+{% block js %}
+    <script src="{% static 'vendor/cropper/cropper.min.js' %}"></script>
+    <script src="{% static 'vendor/jquery.repeater/jquery.repeater.min.js' %}"></script>
+    <script>
+        // Add variation
+        let variationsCount = 1;
+        let productForm = $('#product-form');
+        productForm.repeater({
+              defaultValues: {
+                'text-input': 'foo'
+              },
+
+              show: function() {
+                  $(this).slideDown();
+              },
+
+              hide: function(deleteElement) {
+                if (confirm('Are you sure you want to delete this variation?')) {
+                  $(this).slideUp(deleteElement);
+                }
+              },
+
+            isFirstItemUndeletable: true
+        });
+
+        // Product image
+        let productImgCroppingContainer = $('#product-img-cropping-container');
+        let productImgBtn = $('#product-img-btn');
+        let productImgCropper;
+        let productImgCropperImg = document.getElementById('product-img-cropper-img');
+
+        productImgBtn.on('click', function (event) {
+            event.preventDefault();
+            $('#product-img').click();
+        })
+
+        $("#product-img").change(function(){
+
+	        if (this.files && this.files[0]) {
+
+	            let fileSize = this.files[0].size;
+
+	            if (fileSize / (1024*1024) <= 10) {
+                    let reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        $(productImgCropperImg).attr("src", e.target.result);
+                        productImgCroppingContainer.css('display', 'block');
+                        productImgBtn.css('display', 'none');
+
+                        productImgCropper = new Cropper(productImgCropperImg, {
+                            aspectRatio: 1,
+                            viewMode: 1,
+                            minCropBoxWidth: 200,
+                            minCropBoxHeight: 200,
+                        })
+                    };
+
+                    reader.readAsDataURL(this.files[0]);
+                } else {
+	                toastr.error('Please choose an image less or equal to 10MB.', 'Error!');
+                }
+            }
+	    });
+
+        function productImgCropDestroy() {
+            productImgCropper.destroy();
+            document.getElementById('product-img').value = '';
+            productImgCroppingContainer.css('display', 'none');
+            productImgBtn.css('display', 'inline-block');
+        }
+
+        $(".product-img-crop-zoom-in").click(function () {
+            productImgCropper.zoom(0.1);
+        });
+        $(".product-img-crop-zoom-out").click(function () {
+            productImgCropper.zoom(-0.1);
+        });
+        $('.product-img-crop-destroy').click(function () {
+            productImgCropDestroy();
+        })
+        $('.profile-pic-upload').click(function () {
+            let cropData = profileCropper.getData();
+            $("#profile-pic-x").val(cropData["x"]);
+            $("#profile-pic-y").val(cropData["y"]);
+            $("#profile-pic-h").val(cropData["height"]);
+            $("#profile-pic-w").val(cropData["width"]);
+            $('#profile-pic-form').submit();
+        })
+
+        productForm.on('submit', function (event) {
+            event.preventDefault();
+            let form = this;
+            hideFormErrors(form);
+
+            // Image
+            let productImgcropData = productImgCropper.getData();
+            $("#product-img-x").val(productImgcropData["x"]);
+            $("#product-img-y").val(productImgcropData["y"]);
+            $("#product-img-h").val(productImgcropData["height"]);
+            $("#product-img-w").val(productImgcropData["width"]);
+
+            // Variations
+            let variationCats = [];
+            let variationVals = [];
+            $(this).find(".variation-category").each(function(){
+                variationCats.push($(this).val());
+            });
+            $(this).find(".variation-value").each(function(){
+                variationVals.push($(this).val());
+            });
+            let variations = JSON.stringify(
+                {'categories': variationCats, 'values': variationVals}
+            )
+
+            // Prepare data
+            let data = new FormData(form);
+            data.append('variations', variations);
+
+            // Lock submit btn
+            let btn = $(form).find('.submit-btn');
+            let working = btn.attr('data-working');
+            let btnText = btn.text();
+            btn.prop('disabled', true);
+
+            if (working) {
+                btn.text(working);
+            }
+
+            $.ajax({
+                url: '{% url 'admin_add_product' %}',
+                type: 'POST',
+                data: data,
+                cache:false,
+                contentType: false,
+                processData: false,
+                success: function () {
+                    location.reload();
+                },
+                error: function () {
+                    if (working) {
+                        btn.text(btnText);
+                    }
+                    btn.prop('disabled', false);
+                    data = data.responseJSON;
+                    if (data) {
+                        if (data.hasOwnProperty('errors')) {
+                            showFormErrors(form, data['errors'])
+                        }
+                        if (data.hasOwnProperty('message')) {
+                            toastr.error(data['message'], 'Error!');
+                        } else {
+                            toastr.error('An error has occurred. Please try again.', 'Error!');
+                        }
+                    }
+                }
+            })
+        })
+    </script>
+{% endblock %}

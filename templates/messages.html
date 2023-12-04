@@ -1,0 +1,18 @@
+<script>
+    $(document).ready(function(){
+        {% for message in messages %}
+            {% if message.tags == 'info' %}
+                toastr.info('{{ message }}', 'Info!', {timeOut: 20000});
+            {% endif %}
+            {% if message.tags == 'success' %}
+                toastr.success('{{ message }}', 'Success!', {timeOut: 20000});
+            {% endif %}
+            {% if message.tags == 'warning' %}
+                toastr.warning('{{ message }}', 'Warning!', {timeOut: 20000});
+            {% endif %}
+            {% if message.tags == 'error' %}
+                toastr.error('{{ message }}', 'Error!', {timeOut: 20000});
+            {% endif %}
+        {% endfor %}
+    });
+</script>

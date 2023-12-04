@@ -1,0 +1,540 @@
+{% extends 'admin_base.html' %}
+{% load static %}
+{% block title %}
+    Manage product - Admin
+{% endblock %}
+{% block css %}
+    <link rel="stylesheet" href="{% static 'vendor/cropper/cropper.min.css' %}">
+    <script>
+        const activeDashboardSidebar = 'products';
+    </script>
+{% endblock %}
+{% block content %}
+    <h2 class="text-center">Manage product</h2>
+    <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <div class="text-center mb-3">
+                        <img src="{{ product.images.url }}" alt="" style="width: 150px; border-radius: 10px" class="product-img">
+                        <p class="my-2 fs-14">
+                            Update product image
+                        </p>
+                        <button class="btn btn-primary btn-sm custom" id="product-img-btn">
+                            Upload image
+                        </button>
+                        <form id="product-img-form" style="position: absolute; left: -1000px; top: -1000px">
+                            {% csrf_token %}
+                            <input type="hidden" name="form" value="product_img">
+                            <input type="hidden" id="product-img-x" name="image_x" required>
+                            <input type="hidden" id="product-img-y" name="image_y" required>
+                            <input type="hidden" id="product-img-h" name="image_h" required>
+                            <input type="hidden" id="product-img-w" name="image_w" required>
+                            <input type="file" accept="image/*" id="product-img" name="images" required/>
+                        </form>
+                        <div id="product-img-cropping-container" style="margin-bottom: 20px; display: none;">
+                            <img id="product-img-cropper-img" style="height: 250px; max-width: 100%; display: block" src="">
+                            <div class="d-flex justify-content-center mt-3">
+                                <button type="button" class="btn btn-dark product-img-crop-zoom-in mr-3">
+                                    <i class="fa fa-search-plus"></i>
+                                </button>
+                                <button type="button" class="btn btn-dark product-img-crop-zoom-out mr-3">
+                                    <i class="fa fa-search-minus"></i>
+                                </button>
+                                <button type="button" class="btn btn-dark product-img-upload mr-3">
+                                    <i class="fa fa-upload"></i>
+                                </button>
+                                <button type="button" class="btn btn-danger product-img-crop-destroy">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="m-0 py-2">Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post" action="{% url 'admin_manage_product' product.slug %}" id="product-form">
+                                {% csrf_token %}
+                                <ul class="form-errors text-danger fs-14" data-label="__all__"
+                                    style="display: none">
+
+                                </ul>
+                                <input type="hidden" name="form" value="product_details">
+                                <div class="form-group">
+                                    <label for="product-name">Name</label>
+                                    <input type="text" class="form-control" id="product-name" maxlength="200"
+                                        name="product_name" required value="{{ product.product_name }}">
+                                    <ul class="form-errors text-danger fs-14 mt-1" data-label="product_name"
+                                            style="display: none"></ul>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="col">
+                                        <div class="form-group">
+                                            <label for="product-cat">Category</label>
+                                            <select class="form-control" id="product-cat" required name="category">
+                                                <option value="">-- Select category --</option>
+                                                {% for category in categories %}
+                                                    <option value="{{ category.pk }}" {% if category == product.category %}selected{% endif %}>{{ category.category_name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <ul class="form-errors text-danger fs-14 mt-1" data-label="category"
+                                                    style="display: none"></ul>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-group">
+                                            <label for="product-price">Price in KES</label>
+                                            <input type="number" class="form-control" id="product-price" min="1"
+                                                name="price" required value="{{ product.price }}">
+                                            <ul class="form-errors text-danger fs-14 mt-1" data-label="price"
+                                                    style="display: none"></ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="col">
+                                        <div class="form-group">
+                                            <label for="product-availability">Availability</label>
+                                            <select class="form-control" id="product-availability" required
+                                                name="is_available">
+                                                <option value="available" {% if product.is_available %}selected{% endif %}>Available</option>
+                                                <option value="not_available" {% if not product.is_available %}selected{% endif %}>Not available</option>
+                                            </select>
+                                            <ul class="form-errors text-danger fs-14 mt-1" data-label="is_available"
+                                                    style="display: none"></ul>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-group">
+                                            <label for="product-stock">Stock</label>
+                                            <input type="number" class="form-control" id="product-stock" min="1"
+                                                name="stock" required value="{{ product.stock }}">
+                                            <ul class="form-errors text-danger fs-14 mt-1" data-label="stock"
+                                                    style="display: none"></ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="col">
+                                        <div class="form-group">
+                                            <label for="product-location">Location</label>
+                                            <input type="text" class="form-control" id="product-location" maxlength="100"
+                                                name="location" value="{{ product.location }}">
+                                            <ul class="form-errors text-danger fs-14 mt-1" data-label="location"
+                                                    style="display: none"></ul>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-group">
+                                            <label for="product-datetime">Datetime</label>
+                                            <input type="text" class="form-control" id="product-datetime" maxlength="100"
+                                                name="Datetime" value="{{ product.Datetime }}">
+                                            <ul class="form-errors text-danger fs-14 mt-1" data-label="Datetime"
+                                                    style="display: none"></ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="product-desc">Description</label>
+                                    <textarea class="form-control" id="product-desc" rows="3" name="description" required maxlength="500">{{ product.description }}</textarea>
+                                    <ul class="form-errors text-danger fs-14 mt-1" data-label="description"
+                                            style="display: none"></ul>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="fs-14">Variations</label>
+                                    {% for variation in variations %}
+                                        <div id="variation-{{ variation.pk }}">
+                                            <div class="form-row mb-2">
+                                                <div class="col-6">
+                                                    <select class="form-control variation-category">
+                                                        <option value="color" {% if variation.variation_category == 'color' %}selected{% endif %}>Color</option>
+                                                        <option value="size" {% if variation.variation_category == 'size' %}selected{% endif %}>Size</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-6">
+                                                    <input type="text" class="form-control variation-value" maxlength="100"
+                                                        placeholder="Variation value" value="{{ variation.variation_value }}">
+                                                </div>
+                                            </div>
+                                            <div class="d-flex justify-content-end">
+                                                <span class="text-danger rm-variation" style="cursor: pointer" data-var="{{ variation.pk }}">
+                                                    Remove
+                                                </span>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                    <div data-repeater-list="group-a">
+                                        <div data-repeater-item class="variations-group" style="display: none">
+                                            <div class="form-row mb-2">
+                                                <div class="col-6">
+                                                    <select class="form-control variation-category">
+                                                        <option value="color">Color</option>
+                                                        <option value="size">Size</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-6">
+                                                    <input type="text" class="form-control variation-value" maxlength="100"
+                                                        placeholder="Variation value">
+                                                </div>
+                                            </div>
+                                            <div class="d-flex justify-content-end">
+                                                <span data-repeater-delete class="text-danger" style="cursor: pointer">
+                                                    Remove
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <a data-repeater-create style="cursor: pointer" class="btn btn-primary btn-sm text-white" id="add-variation">
+                                        Add variation
+                                    </a>
+                                </div>
+                                <button class="btn btn-primary submit-btn" type="submit" data-working="Processing...">
+                                    Update
+                                </button>
+                                <a href="#" class="btn btn-danger float-right delete-product">
+                                    Delete
+                                </a>
+                            </form>
+                        </div>
+                    </div>
+                    <h5 class="mb-3">Gallery</h5>
+                    <div class="row">
+                        {% for img in gallery %}
+                            <div class="col-md-4" id="gallery-img-{{ img.pk }}">
+                                <div class="card mb-2">
+                                    <div class="card-body text-center py-2">
+                                        <img src="{{ img.image.url }}" class="img-fluid">
+                                        <a href="#" class="text-danger delete-gallery-img" data-img="{{ img.pk }}">
+                                            Delete
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+
+                    </div>
+                    <div class="text-center">
+                        <button class="btn btn-primary" id="gallery-img-btn">
+                            Upload image
+                        </button>
+                        <form id="gallery-img-form" style="position: absolute; left: -1000px; top: -1000px"
+                            class="custom-submit" action="{% url 'admin_manage_product' product.slug %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="form" value="gallery_img">
+                            <input type="hidden" id="gallery-img-x" name="image_x" required>
+                            <input type="hidden" id="gallery-img-y" name="image_y" required>
+                            <input type="hidden" id="gallery-img-h" name="image_h" required>
+                            <input type="hidden" id="gallery-img-w" name="image_w" required>
+                            <input type="file" accept="image/*" id="gallery-img" name="image" required/>
+                        </form>
+                        <div id="gallery-img-cropping-container" style="margin-bottom: 20px; display: none;">
+                            <img id="gallery-img-cropper-img" style="height: 250px; max-width: 100%; display: block" src="">
+                            <div class="d-flex justify-content-center mt-3">
+                                <button type="button" class="btn btn-dark gallery-img-crop-zoom-in mr-3">
+                                    <i class="fa fa-search-plus"></i>
+                                </button>
+                                <button type="button" class="btn btn-dark gallery-img-crop-zoom-out mr-3">
+                                    <i class="fa fa-search-minus"></i>
+                                </button>
+                                <button type="button" class="btn btn-dark gallery-img-upload mr-3">
+                                    <i class="fa fa-upload"></i>
+                                </button>
+                                <button type="button" class="btn btn-danger gallery-img-crop-destroy">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+    <form id="delete-product-form" style="position: absolute; left: -1000px; top: -1000px"
+        action="{% url 'admin_delete_product' product.slug %}" method="post" class="custom-submit">
+        {% csrf_token %}
+    </form>
+{% endblock %}
+{% block js %}
+    <script src="{% static 'vendor/cropper/cropper.min.js' %}"></script>
+    <script src="{% static 'vendor/jquery.repeater/jquery.repeater.min.js' %}"></script>
+    <script>
+        // Product img
+        let productImgCroppingContainer = $('#product-img-cropping-container');
+        let productImgBtn = $('#product-img-btn');
+        let productImgCropper;
+        let productImgCropperImg = document.getElementById('product-img-cropper-img');
+
+        productImgBtn.on('click', function (event) {
+            event.preventDefault();
+            $('#product-img').click();
+        })
+
+        $("#product-img").change(function(){
+
+	        if (this.files && this.files[0]) {
+
+	            let fileSize = this.files[0].size;
+
+	            if (fileSize / (1024*1024) <= 10) {
+                    let reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        $(productImgCropperImg).attr("src", e.target.result);
+                        productImgCroppingContainer.css('display', 'block');
+                        productImgBtn.css('display', 'none');
+
+                        productImgCropper = new Cropper(productImgCropperImg, {
+                            aspectRatio: 1,
+                            viewMode: 1,
+                            minCropBoxWidth: 200,
+                            minCropBoxHeight: 200,
+                        })
+                    };
+
+                    reader.readAsDataURL(this.files[0]);
+                } else {
+	                toastr.error('Please choose an image less or equal to 10MB.', 'Error!');
+                }
+            }
+	    });
+
+        function productImgCropDestroy() {
+            productImgCropper.destroy();
+            document.getElementById('product-img-form').reset();
+            productImgCroppingContainer.css('display', 'none');
+            productImgBtn.css('display', 'inline-block');
+        }
+
+        $(".product-img-crop-zoom-in").click(function () {
+            productImgCropper.zoom(0.1);
+        });
+        $(".product-img-crop-zoom-out").click(function () {
+            productImgCropper.zoom(-0.1);
+        });
+        $('.product-img-crop-destroy').click(function () {
+            productImgCropDestroy();
+        })
+        $('.product-img-upload').click(function () {
+            let cropData = productImgCropper.getData();
+            $("#product-img-x").val(cropData["x"]);
+            $("#product-img-y").val(cropData["y"]);
+            $("#product-img-h").val(cropData["height"]);
+            $("#product-img-w").val(cropData["width"]);
+            $('#product-img-form').submit();
+        })
+
+        $('#product-img-form').on('submit', function (event) {
+            event.preventDefault();
+            let btn = $('.product-img-upload');
+            btn.prop('disabled', true);
+
+            let form = this;
+            let formData = new FormData(form);
+
+            toastr.info('Uploading product image. Just a moment.', 'Info!');
+
+            $.ajax({
+                type: 'POST',
+                url: '{% url 'admin_manage_product' product.slug %}',
+                data: formData,
+                cache:false,
+                contentType: false,
+                processData: false,
+                success: function(data){
+                    btn.prop('disabled', false);
+                    productImgCropDestroy();
+                    $('.product-img').attr('src', data['image']);
+                    toastr.clear();
+                    toastr.success('Product image updated.', 'Success!');
+                },
+                error: function(){
+                    btn.prop('disabled', false);
+                    toastr.error('An error has occurred. Please try again.', 'Error!');
+                }
+            })
+        })
+
+        // Variations
+        let variationsCount = 1;
+        let productForm = $('#product-form');
+        productForm.repeater({
+              defaultValues: {
+                'text-input': 'foo'
+              },
+
+              show: function() {
+                  $(this).slideDown();
+              },
+
+              hide: function(deleteElement) {
+                if (confirm('Are you sure you want to delete this variation?')) {
+                  $(this).slideUp(deleteElement);
+                }
+              },
+
+            isFirstItemUndeletable: false,
+            initEmpty: true,
+        });
+        $('.rm-variation').on('click', function (event) {
+            event.preventDefault();
+            if (confirm('Are you sure you want to delete this variation?')) {
+                $(`#variation-${$(this).data('var')}`).remove();
+            }
+        })
+
+        productForm.on('submit', function (event) {
+            event.preventDefault();
+            let form = this;
+            hideFormErrors(form);
+
+            // Variations
+            let variationCats = [];
+            let variationVals = [];
+            $(this).find(".variation-category").each(function(){
+                variationCats.push($(this).val());
+            });
+            $(this).find(".variation-value").each(function(){
+                variationVals.push($(this).val());
+            });
+            let variations = JSON.stringify(
+                {'categories': variationCats, 'values': variationVals}
+            )
+
+            // Prepare data
+            let data = new FormData(form);
+            data.append('variations', variations);
+
+            // Lock submit btn
+            let btn = $(form).find('.submit-btn');
+            let working = btn.attr('data-working');
+            let btnText = btn.text();
+            btn.prop('disabled', true);
+
+            if (working) {
+                btn.text(working);
+            }
+
+            $.ajax({
+                url: '{% url 'admin_manage_product' product.slug %}',
+                type: 'POST',
+                data: data,
+                cache:false,
+                contentType: false,
+                processData: false,
+                success: function () {
+                    location.href = '{% url 'admin_products' %}';
+                },
+                error: function () {
+                    if (working) {
+                        btn.text(btnText);
+                    }
+                    btn.prop('disabled', false);
+                    data = data.responseJSON;
+                    if (data) {
+                        if (data.hasOwnProperty('errors')) {
+                            showFormErrors(form, data['errors'])
+                        }
+                        if (data.hasOwnProperty('message')) {
+                            toastr.error(data['message'], 'Error!');
+                        } else {
+                            toastr.error('An error has occurred. Please try again.', 'Error!');
+                        }
+                    }
+                }
+            })
+        })
+        $('.delete-product').on('click', function (event) {
+            event.preventDefault();
+            if (confirm('Are you sure you want to delete this product?')) {
+                $('#delete-product-form').submit();
+            }
+        })
+
+        // Gallery images
+        let galleryImgCroppingContainer = $('#gallery-img-cropping-container');
+        let galleryImgBtn = $('#gallery-img-btn');
+        let galleryImgCropper;
+        let galleryImgCropperImg = document.getElementById('gallery-img-cropper-img');
+
+        galleryImgBtn.on('click', function (event) {
+            event.preventDefault();
+            $('#gallery-img').click();
+        })
+
+        $("#gallery-img").change(function(){
+
+	        if (this.files && this.files[0]) {
+
+	            let fileSize = this.files[0].size;
+
+	            if (fileSize / (1024*1024) <= 10) {
+                    let reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        $(galleryImgCropperImg).attr("src", e.target.result);
+                        galleryImgCroppingContainer.css('display', 'block');
+                        galleryImgBtn.css('display', 'none');
+
+                        galleryImgCropper = new Cropper(galleryImgCropperImg, {
+                            aspectRatio: 1,
+                            viewMode: 1,
+                            minCropBoxWidth: 200,
+                            minCropBoxHeight: 200,
+                        })
+                    };
+
+                    reader.readAsDataURL(this.files[0]);
+                } else {
+	                toastr.error('Please choose an image less or equal to 10MB.', 'Error!');
+                }
+            }
+	    });
+
+        function galleryImgCropDestroy() {
+            galleryImgCropper.destroy();
+            document.getElementById('gallery-img-form').reset();
+            galleryImgCroppingContainer.css('display', 'none');
+            galleryImgBtn.css('display', 'inline-block');
+        }
+
+        $(".gallery-img-crop-zoom-in").click(function () {
+            galleryImgCropper.zoom(0.1);
+        });
+        $(".gallery-img-crop-zoom-out").click(function () {
+            galleryImgCropper.zoom(-0.1);
+        });
+        $('.gallery-img-crop-destroy').click(function () {
+            galleryImgCropDestroy();
+        })
+        $('.gallery-img-upload').click(function () {
+            let cropData = galleryImgCropper.getData();
+            $("#gallery-img-x").val(cropData["x"]);
+            $("#gallery-img-y").val(cropData["y"]);
+            $("#gallery-img-h").val(cropData["height"]);
+            $("#gallery-img-w").val(cropData["width"]);
+            $('#gallery-img-form').submit();
+        })
+
+        $('.delete-gallery-img').on('click', function(event) {
+            event.preventDefault();
+            let img = $(this).data('img');
+            if (confirm('Are you sure you want to delete this gallery image?')) {
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url 'admin_delete_gallery_img' %}',
+                    data: {
+                        'img': img,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    },
+                    success: function(){
+                        toastr.success('Gallery item deleted successfully.', 'Success!');
+                        $(`#gallery-img-${img}`).remove();
+                    },
+                    error: function(){
+                        toastr.error('An error has occurred. Please try again.', 'Error!');
+                    }
+                })
+            }
+        })
+    </script>
+{% endblock %}

@@ -1,0 +1,100 @@
+{% load static %}
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="pragma" content="no-cache" />
+<meta http-equiv="cache-control" content="max-age=604800" />
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<title>{% block title %}{% endblock %} | EventSpot</title>
+
+<link href="{% static 'images/favicon.ico' %}" rel="shortcut icon" type="image/x-icon">
+
+<!-- jQuery -->
+<script src="{% static 'js/jquery-2.0.0.min.js' %}" type="text/javascript"></script>
+
+<!-- Bootstrap4 files-->
+<script src="{% static 'js/bootstrap.bundle.min.js' %}" type="text/javascript"></script>
+<link href="{% static 'css/bootstrap.css' %}" rel="stylesheet" type="text/css"/>
+
+<!-- Font awesome 5 -->
+<link href="{% static 'fonts/fontawesome/css/all.min.css' %}" type="text/css" rel="stylesheet">
+
+<!-- custom style -->
+<link href="{% static 'css/ui.css' %}" rel="stylesheet" type="text/css"/>
+<link href="{% static 'css/responsive.css' %}" rel="stylesheet" media="only screen and (max-width: 1200px)" />
+
+<link href="{% static 'css/custom.css' %}" rel="stylesheet" type="text/css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="{% static 'js/jquery-3.3.1.min.js' %}" type="text/javascript"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<!-- custom javascript -->
+<script src="{% static 'js/script.js' %}" type="text/javascript"></script>
+
+<!-- PayPal Script -->
+<script src="https://www.paypal.com/sdk/js?client-id=AVBSMqNtoZ1IUO6lrSe6-vm9AIV1ZKN8CgXu_nINRs80xELRs650mh3yR62groIUg-GCe59Od_EFOG6O&currency=USD"></script>
+
+
+<script type="text/javascript">
+/// some script
+
+// jquery ready start
+$(document).ready(function() {
+	// jQuery code
+
+});
+// jquery end
+</script>
+
+{% block css %}
+
+{% endblock %}
+
+</head>
+<body>
+
+  <!-- navbar -->
+  {% include 'includes/admin-navbar.html' %}
+
+  <section class="section-conten padding-y bg">
+        {% include 'includes/alerts.html' %}
+        <div class="container">
+            <div class="row">
+                <aside class="col-md-3">
+                      <!--   SIDEBAR   -->
+                      <ul class="list-group" id="dashboard-sidebar">
+                        <a class="list-group-item" href="{% url 'admin_c' %}" data-sidebar="dashboard"> Dashboard </a>
+                        <a class="list-group-item" href="{% url 'admin_users' %}" data-sidebar="users"> Users </a>
+                        <a class="list-group-item" href="{% url 'admin_products' %}" data-sidebar="products"> Products </a>
+                        <a class="list-group-item" href="{% url 'admin_payments' %}" data-sidebar="payments"> Payments </a>
+                        <a class="list-group-item" href="{% url 'admin_orders' %}" data-sidebar="orders"> Orders </a>
+                      </ul>
+                      <br>
+                      <a class="btn btn-light btn-block" href="{% url 'logout' %}"> <i class="fa fa-power-off"></i> <span class="text">Log out</span> </a>
+                      <!--   SIDEBAR .//END   -->
+                </aside>
+                <main class="col-md-9">
+                    {% block content %}
+
+                    {% endblock %}
+                </main>
+            </div>
+        </div>
+    </section>
+
+
+<!-- footer -->
+{% include 'includes/footer.html' %}
+  <script src="{% static 'vendor/moment.js' %}" type="text/javascript"></script>
+  <script>
+      $('#dashboard-sidebar').find(`[data-sidebar='${activeDashboardSidebar}']`).addClass('active');
+  </script>
+{% block js %}
+
+{% endblock %}
+</body>

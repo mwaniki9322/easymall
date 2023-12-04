@@ -1,0 +1,42 @@
+{% extends 'admin_base.html' %}
+{% block title %}Users{% endblock %}
+{% block css %}
+    <script>
+        const activeDashboardSidebar = 'users';
+    </script>
+{% endblock %}
+{% block content %}
+    <h2>Users</h2>
+    <div class="table-responsive">
+            <table class="table table-striped">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">Fullname</th>
+      <th scope="col">Username</th>
+      <th scope="col">Email</th>
+      <th scope="col">Phone No.</th>
+        <th scope="col">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for acc in accounts %}
+    <tr>
+      <th scope="row">{{ acc.full_name }}</th>
+
+      <td>{{ acc.username }}</td>
+      <td>{{ acc.email }}</td>
+    <td>{% if acc.phone_number %}{{ acc.phone_number }}{% else %}N/A{% endif %}</td>
+    <td>
+        <a href="{% url 'admin_single_user' acc.pk %}" class="btn btn-primary btn-sm">
+            View
+        </a>
+    </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+        </div>
+    {% if accounts.paginator.num_pages > 1 %}
+        {% include 'paginate.html' with page_obj=accounts %}
+    {% endif %}
+{% endblock %}

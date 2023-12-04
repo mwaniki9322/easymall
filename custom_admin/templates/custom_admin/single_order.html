@@ -1,0 +1,139 @@
+{% extends 'admin_base.html' %}
+{% load static %}
+{% block title %}
+    Order {{ order.order_number }} - Admin
+{% endblock %}
+{% block css %}
+    <script>
+        const activeDashboardSidebar = 'orders';
+    </script>
+{% endblock %}
+{% block content %}
+    <h2 >Order {{ order.order_number }}</h2>
+    <div class="row">
+
+			<aside class="col-lg-8">
+				<div class="card mb-3">
+					<h5 class="card-header">Billing Address</h5>
+					<div class="card-body">
+						<p class="card-text mb-0">{{order.full_name}}</p>
+						<p class="card-text mb-0">{{order.full_address}}</p>
+						<p class="card-text mb-0">{{order.city}}, {{order.state}}</p>
+						<p class="card-text mb-0">{{order.country}}</p>
+						<p class="card-text mb-0">{{order.email}}</p>
+						<p class="card-text mb-0">{{order.phone}}</p>
+						{% if order.order_note %}
+						<b>Order Note: </b> {{order.order_note}}
+						{% endif %}
+
+
+					</div>
+				</div>
+				<div class="card mb-3">
+					<h5 class="card-header">Payment Method</h5>
+					<div class="card-body">
+						<p class="card-text">PayPal</p>
+
+					</div>
+				</div>
+				<div class="card">
+					<h5 class="card-header">Products</h5>
+					<div class="card-body">
+						<table class="table table-borderless table-shopping-cart">
+							<thead class="text-muted">
+								<tr class="small text-uppercase">
+									<th scope="col">Product</th>
+									<th scope="col" width="120">Quantity</th>
+									<th scope="col" width="120">Price</th>
+
+								</tr>
+							</thead>
+							<tbody>
+
+								{% for product in products %}
+								<tr>
+									<td>
+										<figure class="itemside align-items-center">
+											<div class="aside"><img src="{{ product.product.images.url }}" class="img-sm"></div>
+											<figcaption class="info">
+												<a href="{{ product.product.get_url }}" class="title text-dark">{{ product.product.product_name }}</a>
+												<p class="text-muted small">
+													{% if product.variations.all %}
+													{% for item in product.variations.all %}
+													{{ item.variation_category | capfirst }} : {{ item.variation_value | capfirst }} <br>
+													{% endfor %}
+													{% endif %}
+												</p>
+											</figcaption>
+										</figure>
+									</td>
+									<td>
+										<!-- col.// -->
+										<label for="">{{product.quantity}}</label>
+									</td>
+									<td>
+										<div class="price-wrap">
+											<var class="price">Ksh {{ product.sub_total }}</var>
+											<small class="text-muted"> Ksh {{ product.product_price }} each </small>
+										</div> <!-- price-wrap .// -->
+									</td>
+
+								</tr>
+								{% endfor %}
+
+							</tbody>
+						</table>
+
+					</div>
+				</div>
+
+			</aside> <!-- col.// -->
+			<aside class="col-lg-4">
+
+				<div class="card">
+					<div class="card-body">
+						<dl class="dlist-align">
+							<dt>Total price:</dt>
+							<dd class="text-right">Ksh {{order.get_price}}</dd>
+						</dl>
+						<dl class="dlist-align">
+							<dt>Tax:</dt>
+							<dd class="text-right"> Ksh. {{order.tax}}</dd>
+						</dl>
+						<dl class="dlist-align">
+							<dt>Grand Total:</dt>
+							<dd class="text-right text-dark b"><strong>Ksh. {{order.order_total}}</strong></dd>
+						</dl>
+						<hr>
+                        <form method="post" action="{% url 'admin_change_order_status' order.pk %}" class="custom-submit">
+                            {% csrf_token %}
+                            <ul class="form-errors text-danger fs-14" data-label="__all__"
+                                style="display: none">
+
+                            </ul>
+                            <div class="form-group">
+                                <label for="order-status">Order status</label>
+                                <select class="form-control" id="order-status" required
+                                    name="status">
+                                    <option value="New" {% if order.status == 'New' %}selected{% endif %}>New</option>
+                                    <option value="Accepted" {% if order.status == 'Accepted' %}selected{% endif %}>Accepted</option>
+                                    <option value="Completed" {% if order.status == 'Completed' %}selected{% endif %}>Completed</option>
+                                    <option value="Cancelled" {% if order.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                                </select>
+                                <ul class="form-errors text-danger fs-14 mt-1" data-label="status"
+                                        style="display: none"></ul>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary submit-btn" data-working="Processing...">Change status</button>
+                        </form>
+
+
+					</div> <!-- card-body.// -->
+				</div> <!-- card.// -->
+
+			</aside> <!-- col.// -->
+
+
+		</div> <!-- row.// -->
+
+{% endblock %}

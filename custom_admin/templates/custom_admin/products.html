@@ -1,0 +1,52 @@
+{% extends 'admin_base.html' %}
+{% block title %}Products{% endblock %}
+{% block css %}
+    <script>
+        const activeDashboardSidebar = 'products';
+    </script>
+{% endblock %}
+{% block content %}
+    <div class="row align-items-center">
+        <div class="col">
+            <h2 class="title-page">Products</h2>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'admin_add_product' %}" class="btn btn-primary">
+                Add product
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        {% for product in products %}
+            <div class="col-md-4">
+                <figure class="card card-product-grid">
+                    <div class="img-wrap">
+
+                        <a href="{{ product.get_url }}"><img src="{{ product.images.url }}"></a>
+
+                    </div> <!-- img-wrap.// -->
+                    <figcaption class="info-wrap">
+                        <div class="fix-height">
+                            <a href="{{ product.get_url }}" class="title">{{ product.product_name }}</a>
+                            <div class="price-wrap mt-2">
+                                <span class="price">Ksh. {{ product.price }}</span>
+                            </div> <!-- price-wrap.// -->
+                        </div>
+                        <a href="{% url 'admin_manage_product' product.slug %}" class="btn btn-block btn-primary">Manage </a>
+                    </figcaption>
+                </figure>
+            </div>
+            {% empty %}
+            <div class="col-md-4 mx-auto text-center">
+                <h2>No products found</h2>
+                <a href="{% url 'admin_add_product' %}" class="btn btn-primary">
+                    Add product
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+     {% if products.paginator.num_pages > 1 %}
+        {% include 'paginate.html' with page_obj=products %}
+    {% endif %}
+
+{% endblock %}
